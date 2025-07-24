@@ -1,0 +1,39 @@
+# === Core AI & NLP ===
+openai
+requests
+transformers
+sentencepiece
+
+# === Voice Interface ===
+speechrecognition
+pyttsx3
+pyaudio
+
+# === Image Generation & Handling ===
+Pillow
+python-dotenv
+
+# === Location & Geocoding ===
+geocoder
+geopy
+
+# === System & Device Control ===
+psutil
+platformdirs
+
+# === Input Devices ===
+inputs
+
+# === Web Interface ===
+flask  # Optional, if you want to serve Tezus via web
+
+# === Database ===
+sqlite3  # Built-in with Python
+sqlalchemy  # Optional for ORM
+
+# === Testing ===
+pytest
+
+# === Optional Enhancements ===
+tqdm
+colorama
