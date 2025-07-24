@@ -1,0 +1,85 @@
+body {
+  margin: 0;
+  background: radial-gradient(circle, #0f0f0f, #000000);
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.aura-container {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.aura-core {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00ffff33, #00000000);
+  box-shadow: 0 0 40px #00ffff88;
+  animation: pulse 2s infinite;
+}
+
+.waveform {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('waveform.svg') center/contain no-repeat;
+  opacity: 0.6;
+  animation: breathe 3s infinite ease-in-out;
+}
+
+.spark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #00ffff;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  animation: sparkMove 1.5s infinite ease-in-out;
+}
+
+.rays {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #00ffff44;
+  border-radius: 50%;
+  animation: rotate 10s linear infinite;
+}
+
+.tezus-text {
+  position: absolute;
+  bottom: -40px;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2em;
+  color: #00ffff;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 20px #00ffff88; }
+  50% { box-shadow: 0 0 60px #00ffffcc; }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes sparkMove {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.5); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
