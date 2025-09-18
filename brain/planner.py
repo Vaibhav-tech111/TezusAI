@@ -11,49 +11,28 @@ def generate_plan(intent_data: Dict, memory: Dict) -> List[Dict]:
     intent = intent_data.get("intent")
     entities = intent_data.get("entities", [])
 
+    if not intent or not isinstance(entities, list):
+        return [] #Handle missing or invalid input
+
     plan = []
+    intent_map = {
+        "open_app": {"plugin": "app_controller", "action": "open", "params": lambda entities: {"app": entities[-1]}},
+        "close_app": {"plugin": "app_controller", "action": "close", "params": lambda entities: {"app": entities[-1]}},
+        "search_web": {"plugin": "web_search", "action": "search", "params": lambda entities: {"query": entities[-1]}},
+        "generate_image": {"plugin": "image_generator", "action": "generate", "params": lambda entities: {"prompt": " ".join(entities)}},
+        "get_time": {"plugin": "system_info", "action": "get_time", "params": lambda entities: {}},
+        "get_date": {"plugin": "system_info", "action": "get_date", "params": lambda entities: {}},
+    }
 
-    if intent == "open_app":
-        app_name = entities[-1]
-        plan.append({
-            "plugin": "app_controller",
-            "action": "open",
-            "params": {"app": app_name}
-        })
+    intent_plan = intent_map.get(intent)
+    if intent_plan:
+        try:
+            plan.append({
+                "plugin": intent_plan["plugin"],
+                "action": intent_plan["action"],
+                "params": intent_plan["params"](entities)
+            })
+        except IndexError:
+            return [] #Handle cases where entities is empty for intents requiring them.
 
-    elif intent == "close_app":
-        app_name = entities[-1]
-        plan.append({
-            "plugin": "app_controller",
-            "action": "close",
-            "params": {"app": app_name}
-        })
-
-    elif intent == "search_web":
-        query = entities[-1]
-        plan.append({
-            "plugin": "web_search",
-            "action": "search",
-            "params": {"query": query}
-        })
-
-    elif intent == "generate_image":
-        prompt = " ".join(entities)
-        plan.append({
-            "plugin": "image_generator",
-            "action": "generate",
-            "params": {"prompt": prompt}
-        })
-
-    elif intent == "get_time":
-        plan.append({
-            "plugin": "system_info",
-            "action": "get_time",
-            "params": {}
-        })
-
-    elif intent == "get_date":
-        plan.append({
-            "plugin": "system_info",
-            "action": "get_date",
-            "
+    return plan
