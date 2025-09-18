@@ -1,2 +1,2 @@
 # TezusAI
-The AI That Assists You 👍
+The AI That Assists You
