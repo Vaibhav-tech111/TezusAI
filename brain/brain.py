@@ -6,12 +6,13 @@ from brain.fusion import fuse_results
 from database.manager import DatabaseManager
 from typing import Dict, List, Any
 import logging
+import importlib
 
-logging.basicConfig(level=logging.ERROR) # Configure logging
+logging.basicConfig(level=logging.INFO) # Configure logging
 
 class TezusBrain:
-    def __init__(self, db_manager: DatabaseManager = None):
-        self.db = db_manager or DatabaseManager()
+    def __init__(self, db_manager: DatabaseManager):
+        self.db = db_manager
         self.memory = self.load_memory()
         self.tools = self.load_tools()
 
@@ -43,7 +44,6 @@ class TezusBrain:
         try:
             intent_data = parse_intent(user_input)
             task_plan = generate_plan(intent_data, self.memory)
-            # Execute the plan here
             executed_plan = self._execute_plan(task_plan)
             return executed_plan
         except Exception as e:
@@ -54,35 +54,33 @@ class TezusBrain:
         executed_tasks = []
         for task in task_plan:
             tool_name = task.get("tool")
-            tool = self.tools.get(tool_name)
-            if tool:
+            tool_module = self.tools.get(tool_name)
+            if tool_module:
                 try:
-                    # Execute the tool (replace with actual tool execution)
-                    result = self._execute_tool(tool, task.get("params", {}))
+                    module = importlib.import_module(f"tools.{tool_module}")
+                    tool = getattr(module, tool_module)
+                    result = tool(**task.get("params", {}))
                     task["result"] = result
                     executed_tasks.append(task)
+                except ImportError as e:
+                    logging.error(f"Error importing tool {tool_module}: {e}")
+                    task["error"] = f"ImportError: {e}"
+                    executed_tasks.append(task)
                 except Exception as e:
-                    logging.error(f"Error executing tool {tool}: {e}")
+                    logging.error(f"Error executing tool {tool_module}: {e}")
                     task["error"] = str(e)
                     executed_tasks.append(task)
             else:
                 logging.warning(f"Tool '{tool_name}' not found.")
         return executed_tasks
 
-    def _execute_tool(self, tool_name: str, params: Dict[str, Any]) -> Any:
-        # Placeholder for tool execution - replace with actual implementation
-        # This would involve importing and calling the specific tool module
-        # based on tool_name and passing params.
-        # Example:
-        # from tools import web_search
-        # return web_search(**params)
-        return f"Result from tool: {tool_name} with params: {params}"
-
 
     def fuse(self, responses: List[Any]) -> Any:
         if not isinstance(responses, list):
             logging.error("Invalid input to fuse: responses must be a list.")
             return None
+        if not all(isinstance(r, dict) and "result" in r for r in responses):
+            logging.warning("Invalid response format in fuse.  Expecting a list of dictionaries with a 'result' key.")
         return fuse_results(responses)
 
     def update_memory(self, key: str, value: Any):
